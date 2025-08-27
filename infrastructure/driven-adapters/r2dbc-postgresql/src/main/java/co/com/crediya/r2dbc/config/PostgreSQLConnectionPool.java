@@ -20,7 +20,6 @@ public class PostgreSQLConnectionPool {
     public static final int INITIAL_SIZE = 2;
     public static final int MAX_SIZE = 5;
     public static final int MAX_IDLE_TIME = 10;
-    public static final int DEFAULT_PORT = 5432;
 
 	@Bean
     @Primary

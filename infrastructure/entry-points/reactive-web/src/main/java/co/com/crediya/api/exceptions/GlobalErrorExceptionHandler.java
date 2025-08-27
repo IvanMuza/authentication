@@ -17,6 +17,7 @@ public class GlobalErrorExceptionHandler implements WebExceptionHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    @Override
     public Mono<Void> handle(ServerWebExchange serverWebExchange, Throwable ex) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String code = "500";

@@ -1,5 +1,8 @@
 package co.com.crediya.model.user.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ErrorCodesEnums {
     USER_REQUIRED("USER_REQUIRED", "User must not be null"),
     FIRST_NAME_REQUIRED("FIRST_NAME_REQUIRED", "First name cannot be empty"),
@@ -17,11 +20,4 @@ public enum ErrorCodesEnums {
         this.defaultMessage = defaultMessage;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public String getDefaultMessage() {
-        return defaultMessage;
-    }
 }
