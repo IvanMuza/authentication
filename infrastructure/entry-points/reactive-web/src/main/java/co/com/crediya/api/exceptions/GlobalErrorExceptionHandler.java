@@ -6,7 +6,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.server.*;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 import reactor.core.publisher.Mono;
@@ -23,14 +22,14 @@ public class GlobalErrorExceptionHandler implements WebExceptionHandler {
         String code = "500";
         if (ex instanceof BaseBusinessException) {
             status = HttpStatus.BAD_REQUEST;
-            code = ((BaseBusinessException) ex).getCode();
+            code = "400";
         }
         serverWebExchange.getResponse().setStatusCode(status);
         serverWebExchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-        Error error = new Error(code, ex.getMessage(), serverWebExchange.getRequest().getPath().value());
+        ErrorResponse errorResponse = new ErrorResponse(code, ex.getMessage(), serverWebExchange.getRequest().getPath().value());
         try {
-            byte[] bytes = objectMapper.writeValueAsBytes(error);
+            byte[] bytes = objectMapper.writeValueAsBytes(errorResponse);
             return serverWebExchange.getResponse()
                     .writeWith(Mono.just(serverWebExchange.getResponse().bufferFactory().wrap(bytes)));
         } catch (Exception e) {
