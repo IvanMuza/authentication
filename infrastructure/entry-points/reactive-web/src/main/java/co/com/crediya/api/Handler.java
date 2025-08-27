@@ -1,34 +1,27 @@
 package co.com.crediya.api;
 
-import co.com.crediya.api.dtos.RegisterUserRequest;
+import co.com.crediya.api.dtos.RegisterUserDto;
 import co.com.crediya.api.mappers.UserMapper;
 import co.com.crediya.usecase.registeruser.RegisterUserUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class Handler {
     private final RegisterUserUseCase registerUserUseCase;
     private final UserMapper userMapper;
+    private final TransactionalOperator transactionalOperator;
 
-    public Mono<ServerResponse> listenGETUseCase(ServerRequest serverRequest) {
-        // useCase.logic();
-        return ServerResponse.ok().bodyValue("");
-    }
-
-    public Mono<ServerResponse> listenGETOtherUseCase(ServerRequest serverRequest) {
-        // useCase2.logic();
-        return ServerResponse.ok().bodyValue("");
-    }
-
-    public Mono<ServerResponse> listenPOSTUseCase(ServerRequest serverRequest) {
-        // useCase.logic();
-        return serverRequest.bodyToMono(RegisterUserRequest.class)
+    public Mono<ServerResponse> listenPostUseCase(ServerRequest serverRequest) {
+        return serverRequest.bodyToMono(RegisterUserDto.class)
                 .map(userMapper::toDomain)
                 .flatMap(registerUserUseCase::registerUser)
                 .map(userMapper::toResponse)
@@ -36,6 +29,6 @@ public class Handler {
                         .status(201)
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(userResponse)
-                );
+                ).as(transactionalOperator::transactional);
     }
 }
