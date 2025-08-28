@@ -13,6 +13,8 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class RegisterUserUseCase {
     private final UserRepository userRepository;
+    private static final Double MIN_VALUE_BASE_SALARY = 0.0;
+    private static final Double MAX_VALUE_BASE_SALARY = 15000000.0;
 
     public Mono<User> registerUser(User user) {
         if (user == null) {
@@ -32,7 +34,7 @@ public class RegisterUserUseCase {
             return Mono.error(new ValidationException(ErrorCodesEnums.EMAIL_REQUIRED.getCode(),
                     ErrorCodesEnums.EMAIL_REQUIRED.getDefaultMessage()));
         }
-        if (user.getBaseSalary() == null || user.getBaseSalary() < 0 || user.getBaseSalary() > 15000000) {
+        if (user.getBaseSalary() == null || user.getBaseSalary() < MIN_VALUE_BASE_SALARY || user.getBaseSalary() > MAX_VALUE_BASE_SALARY) {
             return Mono.error(new ValidationException(ErrorCodesEnums.BASE_SALARY_INVALID.getCode(),
                     ErrorCodesEnums.BASE_SALARY_INVALID.getDefaultMessage()));
         }

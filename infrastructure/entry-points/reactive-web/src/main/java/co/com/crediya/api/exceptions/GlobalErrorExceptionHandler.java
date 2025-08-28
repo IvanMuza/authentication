@@ -19,10 +19,10 @@ public class GlobalErrorExceptionHandler implements WebExceptionHandler {
     @Override
     public Mono<Void> handle(ServerWebExchange serverWebExchange, Throwable ex) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        String code = "500";
+        String code = String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value());
         if (ex instanceof BaseBusinessException) {
             status = HttpStatus.BAD_REQUEST;
-            code = "400";
+            code = String.valueOf(HttpStatus.BAD_REQUEST.value());
         }
         serverWebExchange.getResponse().setStatusCode(status);
         serverWebExchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);

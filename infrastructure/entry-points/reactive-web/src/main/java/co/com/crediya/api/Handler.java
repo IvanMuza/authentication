@@ -5,6 +5,7 @@ import co.com.crediya.api.mappers.UserMapper;
 import co.com.crediya.usecase.registeruser.RegisterUserUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -26,7 +27,7 @@ public class Handler {
                 .flatMap(registerUserUseCase::registerUser)
                 .map(userMapper::toResponse)
                 .flatMap(userResponse -> ServerResponse
-                        .status(201)
+                        .status(HttpStatus.CREATED.value())
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(userResponse)
                 ).as(transactionalOperator::transactional);
