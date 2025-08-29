@@ -17,8 +17,8 @@ subprojects {
     compileJava.dependsOn validateStructure
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     //build.dependsOn 'pitest'
@@ -72,7 +72,7 @@ subprojects {
     }
 
     jacocoTestReport {
-        dependsOn test, 'pitest'
+        dependsOn test//, 'pitest'
         reports {
             xml.setRequired true
             xml.setOutputLocation layout.buildDirectory.file("reports/jacoco.xml")

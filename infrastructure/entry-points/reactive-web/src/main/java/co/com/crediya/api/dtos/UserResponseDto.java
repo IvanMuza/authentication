@@ -1,31 +1,19 @@
-package co.com.crediya.model.user;
+package co.com.crediya.api.dtos;
+
 import lombok.Builder;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder(toBuilder = true)
-public class User {
+@Data
+@Builder
+public class UserResponseDto {
     private Long id;
-
     private String firstName;
-
     private String lastName;
-
     private LocalDate birthDate;
-
     private String address;
-
     private String phone;
-
     private String email;
-
     private Double baseSalary;
 }
