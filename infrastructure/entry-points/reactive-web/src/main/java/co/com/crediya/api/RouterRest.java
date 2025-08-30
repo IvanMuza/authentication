@@ -1,7 +1,9 @@
 package co.com.crediya.api;
 
 import co.com.crediya.api.dtos.RegisterUserDto;
+import co.com.crediya.model.user.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -44,6 +46,23 @@ public class RouterRest {
                                     @ApiResponse(responseCode = "500", description = "Internal server error",
                                             content = @Content(mediaType = "application/json",
                                                     schema = @Schema(implementation = RegisterUserDto.class)))
+                            }
+                    )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/users/tasks",
+                    beanClass = Handler.class,
+                    beanMethod = "listenGetAllUsersTask",
+                    operation = @Operation(
+                            operationId = "listenGetAllUsersTask",
+                            summary = "Get all users from tasks",
+                            description = "Streams all users retrieved by the RegisterUserUseCase.",
+                            responses = {
+                                    @ApiResponse(responseCode = "200", description = "List of users retrieved successfully",
+                                            content = @Content(mediaType = "text/event-stream",
+                                                    array = @ArraySchema(schema = @Schema(implementation = User.class)))),
+                                    @ApiResponse(responseCode = "500", description = "Internal server error",
+                                            content = @Content(mediaType = "application/json"))
                             }
                     )
             )
