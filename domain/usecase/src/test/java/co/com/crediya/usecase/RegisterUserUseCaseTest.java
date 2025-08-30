@@ -30,6 +30,7 @@ class RegisterUserUseCaseTest {
     private User buildValidUser() {
         return User.builder()
                 .id(1L)
+                .documentNumber("12345")
                 .firstName("Ivan")
                 .lastName("Muza")
                 .birthDate(LocalDate.of(2000, 6, 12))
@@ -57,6 +58,18 @@ class RegisterUserUseCaseTest {
     @Test
     void shouldFailWhenUserIsNull() {
         StepVerifier.create(registerUserUseCase.registerUser(null))
+                .expectError(ValidationException.class)
+                .verify();
+
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void shouldFailWhenDocumentNumberIsMissing() {
+        User user = buildValidUser();
+        user.setDocumentNumber("");
+
+        StepVerifier.create(registerUserUseCase.registerUser(user))
                 .expectError(ValidationException.class)
                 .verify();
 

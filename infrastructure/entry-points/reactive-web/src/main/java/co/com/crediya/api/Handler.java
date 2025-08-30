@@ -22,14 +22,24 @@ public class Handler {
     private final TransactionalOperator transactionalOperator;
 
     public Mono<ServerResponse> listenPostUseCase(ServerRequest serverRequest) {
+        log.info("listenPostUseCase");
         return serverRequest.bodyToMono(RegisterUserDto.class)
                 .map(userMapper::toDomain)
                 .flatMap(registerUserUseCase::registerUser)
                 .map(userMapper::toResponse)
-                .flatMap(userResponse -> ServerResponse
-                        .status(HttpStatus.CREATED.value())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .bodyValue(userResponse)
-                ).as(transactionalOperator::transactional);
+                .flatMap(userResponse -> {
+                    log.info("Successfully created user: {}", userResponse.getEmail());
+                    return ServerResponse
+                            .status(HttpStatus.CREATED.value())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(userResponse);
+                }).as(transactionalOperator::transactional);
+    }
+
+    public Mono<ServerResponse> listenGetAllUsersTask(ServerRequest serverRequest) {
+        log.info("listenGetAllUsersTask");
+        return ServerResponse.ok()
+                .contentType(MediaType.TEXT_EVENT_STREAM)
+                .body(registerUserUseCase.getAllUsers(), RegisterUserUseCase.class);
     }
 }

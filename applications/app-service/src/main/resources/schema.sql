@@ -1,6 +1,7 @@
 CREATE TABLE  IF NOT EXISTS users
 (
     id_user BIGSERIAL PRIMARY KEY,
+    document_number VARCHAR(100) NOT NULL,
     name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     birthdate DATE,
