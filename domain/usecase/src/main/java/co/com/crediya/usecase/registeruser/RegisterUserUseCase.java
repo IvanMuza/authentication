@@ -9,7 +9,6 @@ import co.com.crediya.model.user.exceptions.ValidationException;
 import co.com.crediya.model.user.gateways.UserRepository;
 import co.com.crediya.usecase.registeruser.helper.EmailValidator;
 import lombok.RequiredArgsConstructor;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -66,10 +65,6 @@ public class RegisterUserUseCase {
                                     : userRepository.save(user)
                             );
                 });
-    }
-
-    public Flux<User> getAllUsers() {
-        return userRepository.findAll();
     }
 
 }

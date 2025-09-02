@@ -5,6 +5,7 @@ import co.com.crediya.api.mappers.UserMapper;
 import co.com.crediya.model.user.enums.ErrorCodesEnums;
 import co.com.crediya.model.user.exceptions.UserNotFoundException;
 import co.com.crediya.model.user.gateways.UserRepository;
+import co.com.crediya.usecase.registeruser.GetAllUsersUseCase;
 import co.com.crediya.usecase.registeruser.RegisterUserUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class Handler {
     private final UserMapper userMapper;
     private final TransactionalOperator transactionalOperator;
     private final UserRepository userRepository;
+    private final GetAllUsersUseCase  getAllUsersUseCase;
 
     public Mono<ServerResponse> listenPostUseCase(ServerRequest serverRequest) {
         log.info("listenPostUseCase");
@@ -44,7 +46,7 @@ public class Handler {
         log.info("listenGetAllUsersTask");
         return ServerResponse.ok()
                 .contentType(MediaType.TEXT_EVENT_STREAM)
-                .body(registerUserUseCase.getAllUsers(), RegisterUserUseCase.class);
+                .body(getAllUsersUseCase.getAllUsers(), GetAllUsersUseCase.class);
     }
 
     public Mono<ServerResponse> listenGetExistsByDocument(ServerRequest serverRequest) {

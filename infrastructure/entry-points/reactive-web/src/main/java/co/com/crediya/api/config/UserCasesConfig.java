@@ -1,6 +1,7 @@
 package co.com.crediya.api.config;
 
 import co.com.crediya.model.user.gateways.UserRepository;
+import co.com.crediya.usecase.registeruser.GetAllUsersUseCase;
 import co.com.crediya.usecase.registeruser.RegisterUserUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,5 +11,10 @@ public class UserCasesConfig {
     @Bean
     public RegisterUserUseCase registerUserUseCase(UserRepository userRepository) {
         return new RegisterUserUseCase(userRepository);
+    }
+
+    @Bean
+    public GetAllUsersUseCase getAllUsersUseCase(UserRepository userRepository) {
+        return new GetAllUsersUseCase(userRepository);
     }
 }
