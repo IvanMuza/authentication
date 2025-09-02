@@ -3,6 +3,8 @@ package co.com.crediya.api;
 import co.com.crediya.api.dtos.RegisterUserDto;
 import co.com.crediya.model.user.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -65,10 +67,49 @@ public class RouterRest {
                                             content = @Content(mediaType = "application/json"))
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/users/{documentNumber}",
+                    beanClass = Handler.class,
+                    beanMethod = "listenGetExistsByDocument",
+                    operation = @Operation(
+                            operationId = "listenGetExistsByDocument",
+                            summary = "Find user by document number",
+                            description = "Returns the user object if found, otherwise a 400 not found error",
+                            parameters = {
+                                    @Parameter(
+                                            name = "documentNumber",
+                                            in = ParameterIn.PATH,
+                                            required = true,
+                                            description = "Document number of the user to retrieve"
+                                    )
+                            },
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "User found successfully",
+                                            content = @Content(mediaType = "application/json",
+                                                    schema = @Schema(implementation = User.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "404",
+                                            description = "User not found",
+                                            content = @Content(mediaType = "application/json",
+                                                    schema = @Schema(implementation = String.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "500",
+                                            description = "Internal server error",
+                                            content = @Content(mediaType = "application/json",
+                                                    schema = @Schema(implementation = String.class))
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST("/api/v1/users"), handler::listenPostUseCase)
-                .and(route(GET("/api/v1/users/tasks"), handler::listenGetAllUsersTask));
+                .and(route(GET("/api/v1/users/tasks"), handler::listenGetAllUsersTask)
+                        .and(route(GET("/api/v1/users/{documentNumber}"), handler::listenGetExistsByDocument)));
     }
 }

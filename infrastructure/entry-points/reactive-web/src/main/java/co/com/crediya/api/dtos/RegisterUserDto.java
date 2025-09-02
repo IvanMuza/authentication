@@ -6,7 +6,6 @@ import java.time.LocalDate;
 
 @Data
 public class RegisterUserDto {
-    private Long id;
     private String documentNumber;
     private String firstName;
     private String lastName;

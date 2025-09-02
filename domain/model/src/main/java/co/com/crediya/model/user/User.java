@@ -13,8 +13,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class User {
-    private Long id;
-
     private String documentNumber;
 
     private String firstName;

@@ -2,6 +2,9 @@ package co.com.crediya.api;
 
 import co.com.crediya.api.dtos.RegisterUserDto;
 import co.com.crediya.api.mappers.UserMapper;
+import co.com.crediya.model.user.enums.ErrorCodesEnums;
+import co.com.crediya.model.user.exceptions.UserNotFoundException;
+import co.com.crediya.model.user.gateways.UserRepository;
 import co.com.crediya.usecase.registeruser.RegisterUserUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +23,7 @@ public class Handler {
     private final RegisterUserUseCase registerUserUseCase;
     private final UserMapper userMapper;
     private final TransactionalOperator transactionalOperator;
+    private final UserRepository userRepository;
 
     public Mono<ServerResponse> listenPostUseCase(ServerRequest serverRequest) {
         log.info("listenPostUseCase");
@@ -41,5 +45,18 @@ public class Handler {
         return ServerResponse.ok()
                 .contentType(MediaType.TEXT_EVENT_STREAM)
                 .body(registerUserUseCase.getAllUsers(), RegisterUserUseCase.class);
+    }
+
+    public Mono<ServerResponse> listenGetExistsByDocument(ServerRequest serverRequest) {
+        String documentNumber = serverRequest.pathVariable("documentNumber");
+        log.info("listenGetExistsByDocument");
+        return userRepository.findByDocumentNumber(documentNumber)
+                .flatMap(user -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(user))
+                .switchIfEmpty(Mono.error(new UserNotFoundException(
+                        ErrorCodesEnums.USER_NOT_FOUND.getCode(),
+                        ErrorCodesEnums.USER_NOT_FOUND.getDefaultMessage()
+                )));
     }
 }

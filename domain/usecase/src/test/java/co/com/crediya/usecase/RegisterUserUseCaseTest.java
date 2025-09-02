@@ -1,6 +1,7 @@
 package co.com.crediya.usecase;
 
 import co.com.crediya.model.user.User;
+import co.com.crediya.model.user.exceptions.DocumentAlreadyExistsException;
 import co.com.crediya.model.user.exceptions.EmailAlreadyExistsException;
 import co.com.crediya.model.user.exceptions.EmailNotValidException;
 import co.com.crediya.model.user.exceptions.ValidationException;
@@ -29,7 +30,6 @@ class RegisterUserUseCaseTest {
 
     private User buildValidUser() {
         return User.builder()
-                .id(1L)
                 .documentNumber("12345")
                 .firstName("Ivan")
                 .lastName("Muza")
@@ -45,6 +45,7 @@ class RegisterUserUseCaseTest {
     void shouldRegisterUserWhenValid() {
         User user = buildValidUser();
 
+        when(userRepository.existsByDocumentNumber(user.getDocumentNumber())).thenReturn(Mono.just(false));
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(Mono.just(false));
         when(userRepository.save(user)).thenReturn(Mono.just(user));
 
@@ -152,6 +153,7 @@ class RegisterUserUseCaseTest {
     void shouldFailWhenEmailAlreadyExists() {
         User user = buildValidUser();
 
+        when(userRepository.existsByDocumentNumber(user.getDocumentNumber())).thenReturn(Mono.just(false));
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(Mono.just(true));
 
         StepVerifier.create(registerUserUseCase.registerUser(user))
@@ -159,6 +161,20 @@ class RegisterUserUseCaseTest {
                 .verify();
 
         verify(userRepository).existsByEmail(user.getEmail());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldFailWhenDocumentNumberAlreadyExists() {
+        User user = buildValidUser();
+
+        when(userRepository.existsByDocumentNumber(user.getDocumentNumber())).thenReturn(Mono.just(true));
+
+        StepVerifier.create(registerUserUseCase.registerUser(user))
+                .expectError(DocumentAlreadyExistsException.class)
+                .verify();
+
+        verify(userRepository).existsByDocumentNumber(user.getDocumentNumber());
         verify(userRepository, never()).save(any());
     }
 

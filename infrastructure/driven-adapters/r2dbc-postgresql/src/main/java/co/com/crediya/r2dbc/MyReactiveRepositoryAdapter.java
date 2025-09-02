@@ -14,8 +14,8 @@ import java.util.UUID;
 
 @Repository
 public class MyReactiveRepositoryAdapter
-        extends ReactiveAdapterOperations< User, UserEntity, UUID, MyReactiveRepository >
-implements UserRepository {
+        extends ReactiveAdapterOperations<User, UserEntity, UUID, MyReactiveRepository>
+        implements UserRepository {
     public MyReactiveRepositoryAdapter(MyReactiveRepository repository, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.map(d, User.class));
     }
@@ -25,9 +25,19 @@ implements UserRepository {
         return this.repository.existsByEmail(email);
     }
 
-    public Flux<User> findAll(){
+    public Flux<User> findAll() {
         return super.findAll().
                 delayElements(Duration.ofMillis(1000));
+    }
+
+    @Override
+    public Mono<Boolean> existsByDocumentNumber(String documentNumber) {
+        return this.repository.existsByDocumentNumber(documentNumber);
+    }
+
+    @Override
+    public Mono<User> findByDocumentNumber(String documentNumber) {
+        return this.repository.findByDocumentNumber(documentNumber);
     }
 
 }

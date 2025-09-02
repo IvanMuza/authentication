@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ErrorCodesEnums {
     USER_REQUIRED("USER_REQUIRED", "User must not be null"),
+    USER_NOT_FOUND("USER_NOT_FOUND", "User not found with provided document number"),
     DOCUMENT_NUMBER_REQUIRED("DOCUMENT_NUMBER_REQUIRED", "Document number cannot be empty"),
+    DOCUMENT_NUMBER_ALREADY_EXISTS("DOCUMENT_NUMBER_ALREADY_EXISTS", "Document number already exists"),
     FIRST_NAME_REQUIRED("FIRST_NAME_REQUIRED", "First name cannot be empty"),
     LAST_NAME_REQUIRED("LAST_NAME_REQUIRED", "Last name cannot be empty"),
     EMAIL_REQUIRED("EMAIL_REQUIRED", "Email is required"),
