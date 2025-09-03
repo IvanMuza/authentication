@@ -25,7 +25,7 @@ public class Handler {
     private final UserMapper userMapper;
     private final TransactionalOperator transactionalOperator;
     private final UserRepository userRepository;
-    private final GetAllUsersUseCase  getAllUsersUseCase;
+    private final GetAllUsersUseCase getAllUsersUseCase;
 
     public Mono<ServerResponse> listenPostUseCase(ServerRequest serverRequest) {
         log.info("listenPostUseCase");
@@ -61,4 +61,22 @@ public class Handler {
                         ErrorCodesEnums.USER_NOT_FOUND.getDefaultMessage()
                 )));
     }
+
+    public Mono<ServerResponse> listenGetExistsByEmail(ServerRequest serverRequest) {
+        String email = serverRequest.pathVariable("email");
+        log.info("listenGetExistsByEmail, email={}", email);
+        return userRepository.existsByEmail(email)
+                .flatMap(exists -> {
+                    if (exists) {
+                        return ServerResponse.ok()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(true);
+                    } else {
+                        return ServerResponse.status(HttpStatus.NOT_FOUND)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(false);
+                    }
+                });
+    }
+
 }

@@ -92,10 +92,48 @@ public class RouterRest {
                                                     schema = @Schema(implementation = User.class))
                                     ),
                                     @ApiResponse(
-                                            responseCode = "404",
-                                            description = "User not found",
+                                            responseCode = "400",
+                                            description = "User not found with provided document number",
                                             content = @Content(mediaType = "application/json",
                                                     schema = @Schema(implementation = String.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "500",
+                                            description = "Internal server error",
+                                            content = @Content(mediaType = "application/json",
+                                                    schema = @Schema(implementation = String.class))
+                                    )
+                            }
+                    )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/users/exists/{email}",
+                    beanClass = Handler.class,
+                    beanMethod = "listenGetExistsByEmail",
+                    operation = @Operation(
+                            operationId = "listenGetExistsByEmail",
+                            summary = "Find user by email",
+                            description = "Returns true if found, otherwise return false",
+                            parameters = {
+                                    @Parameter(
+                                            name = "email",
+                                            in = ParameterIn.PATH,
+                                            required = true,
+                                            description = "Email of the user to check"
+                                    )
+                            },
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "Boolean result indicating existence",
+                                            content = @Content(mediaType = "application/json",
+                                                    schema = @Schema(implementation = Boolean.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "404",
+                                            description = "Boolean result indicating user not found",
+                                            content = @Content(mediaType = "application/json",
+                                                    schema = @Schema(implementation = Boolean.class))
                                     ),
                                     @ApiResponse(
                                             responseCode = "500",
@@ -110,6 +148,7 @@ public class RouterRest {
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST("/api/v1/users"), handler::listenPostUseCase)
                 .and(route(GET("/api/v1/users/tasks"), handler::listenGetAllUsersTask)
-                        .and(route(GET("/api/v1/users/{documentNumber}"), handler::listenGetExistsByDocument)));
+                        .and(route(GET("/api/v1/users/{documentNumber}"), handler::listenGetExistsByDocument))
+                        .and(route(GET("/api/v1/users/exists/{email}"), handler::listenGetExistsByEmail)));
     }
 }
