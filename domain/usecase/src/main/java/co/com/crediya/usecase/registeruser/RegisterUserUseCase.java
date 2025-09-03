@@ -2,6 +2,7 @@ package co.com.crediya.usecase.registeruser;
 
 import co.com.crediya.model.user.User;
 import co.com.crediya.model.user.enums.ErrorCodesEnums;
+import co.com.crediya.model.user.exceptions.DocumentAlreadyExistsException;
 import co.com.crediya.model.user.exceptions.EmailAlreadyExistsException;
 import co.com.crediya.model.user.exceptions.EmailNotValidException;
 import co.com.crediya.model.user.exceptions.ValidationException;
@@ -20,6 +21,11 @@ public class RegisterUserUseCase {
         if (user == null) {
             return Mono.error(new ValidationException(ErrorCodesEnums.USER_REQUIRED.getCode(),
                     ErrorCodesEnums.USER_REQUIRED.getDefaultMessage()));
+        }
+
+        if (user.getDocumentNumber() == null || user.getDocumentNumber().isBlank()) {
+            return Mono.error(new ValidationException(ErrorCodesEnums.DOCUMENT_NUMBER_REQUIRED.getCode(),
+                    ErrorCodesEnums.DOCUMENT_NUMBER_REQUIRED.getDefaultMessage()));
         }
 
         if (user.getFirstName() == null || user.getFirstName().isBlank()) {
@@ -43,12 +49,22 @@ public class RegisterUserUseCase {
                     ErrorCodesEnums.EMAIL_INVALID.getDefaultMessage()));
         }
 
-        return userRepository.existsByEmail(user.getEmail())
-                .flatMap(exists -> exists
-                        ? Mono.error(new EmailAlreadyExistsException(ErrorCodesEnums.EMAIL_ALREADY_EXISTS.getCode(),
-                        ErrorCodesEnums.EMAIL_ALREADY_EXISTS.getDefaultMessage()))
-                        : userRepository.save(user)
-                );
+        return userRepository.existsByDocumentNumber(user.getDocumentNumber())
+                .flatMap(exists -> {
+                    if (exists) {
+                        return Mono.error(new DocumentAlreadyExistsException(
+                                ErrorCodesEnums.DOCUMENT_NUMBER_ALREADY_EXISTS.getCode(),
+                                ErrorCodesEnums.DOCUMENT_NUMBER_ALREADY_EXISTS.getDefaultMessage()
+                        ));
+                    }
+                    return userRepository.existsByEmail(user.getEmail())
+                            .flatMap(emailExists -> emailExists
+                                    ? Mono.error(new EmailAlreadyExistsException(
+                                    ErrorCodesEnums.EMAIL_ALREADY_EXISTS.getCode(),
+                                    ErrorCodesEnums.EMAIL_ALREADY_EXISTS.getDefaultMessage()))
+                                    : userRepository.save(user)
+                            );
+                });
     }
 
 }

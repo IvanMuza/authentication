@@ -16,9 +16,12 @@ import java.time.LocalDate;
 @Table(name = "users")
 public class UserEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column("id_user")
     private Long id;
+
+    @Column("document_number")
+    private String documentNumber;
 
     @Column("name")
     private String firstName;

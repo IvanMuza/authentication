@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class UserResponseDto {
-    private Long id;
+    private String documentNumber;
     private String firstName;
     private String lastName;
     private LocalDate birthDate;
