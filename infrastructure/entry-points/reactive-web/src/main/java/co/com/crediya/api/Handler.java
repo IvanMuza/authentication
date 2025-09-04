@@ -8,7 +8,6 @@ import co.com.crediya.model.user.gateways.UserRepository;
 import co.com.crediya.usecase.registeruser.GetAllUsersUseCase;
 import co.com.crediya.usecase.registeruser.RegisterUserUseCase;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -17,7 +16,6 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class Handler {
@@ -27,31 +25,27 @@ public class Handler {
     private final UserRepository userRepository;
     private final GetAllUsersUseCase getAllUsersUseCase;
 
-    public Mono<ServerResponse> listenPostUseCase(ServerRequest serverRequest) {
-        log.info("listenPostUseCase");
+    public Mono<ServerResponse> listenPostRegisterUser(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(RegisterUserDto.class)
                 .map(userMapper::toDomain)
                 .flatMap(registerUserUseCase::registerUser)
                 .map(userMapper::toResponse)
-                .flatMap(userResponse -> {
-                    log.info("Successfully created user: {}", userResponse.getEmail());
-                    return ServerResponse
-                            .status(HttpStatus.CREATED.value())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .bodyValue(userResponse);
-                }).as(transactionalOperator::transactional);
+                .flatMap(userResponse -> ServerResponse
+                        .status(HttpStatus.CREATED.value())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(userResponse))
+                .as(transactionalOperator::transactional);
     }
 
     public Mono<ServerResponse> listenGetAllUsersTask(ServerRequest serverRequest) {
-        log.info("listenGetAllUsersTask");
         return ServerResponse.ok()
                 .contentType(MediaType.TEXT_EVENT_STREAM)
-                .body(getAllUsersUseCase.getAllUsers(), GetAllUsersUseCase.class);
+                .body(getAllUsersUseCase.getAllUsers(), GetAllUsersUseCase.class)
+                .as(transactionalOperator::transactional);
     }
 
     public Mono<ServerResponse> listenGetExistsByDocument(ServerRequest serverRequest) {
         String documentNumber = serverRequest.pathVariable("documentNumber");
-        log.info("listenGetExistsByDocument");
         return userRepository.findByDocumentNumber(documentNumber)
                 .flatMap(user -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
@@ -59,12 +53,12 @@ public class Handler {
                 .switchIfEmpty(Mono.error(new UserNotFoundException(
                         ErrorCodesEnums.USER_NOT_FOUND.getCode(),
                         ErrorCodesEnums.USER_NOT_FOUND.getDefaultMessage()
-                )));
+                )))
+                .as(transactionalOperator::transactional);
     }
 
     public Mono<ServerResponse> listenGetExistsByEmail(ServerRequest serverRequest) {
         String email = serverRequest.pathVariable("email");
-        log.info("listenGetExistsByEmail, email={}", email);
         return userRepository.existsByEmail(email)
                 .flatMap(exists -> {
                     if (exists) {
@@ -76,7 +70,8 @@ public class Handler {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .bodyValue(false);
                     }
-                });
+                })
+                .as(transactionalOperator::transactional);
     }
 
 }
