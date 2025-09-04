@@ -146,7 +146,7 @@ public class RouterRest {
             )
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
-        return route(POST("/api/v1/users"), handler::listenPostUseCase)
+        return route(POST("/api/v1/users"), handler::listenPostRegisterUser)
                 .and(route(GET("/api/v1/users/tasks"), handler::listenGetAllUsersTask)
                         .and(route(GET("/api/v1/users/{documentNumber}"), handler::listenGetExistsByDocument))
                         .and(route(GET("/api/v1/users/exists/{email}"), handler::listenGetExistsByEmail)));
