@@ -1,5 +1,7 @@
 package co.com.crediya.api;
 
+import co.com.crediya.api.dtos.LoginRequestDto;
+import co.com.crediya.api.dtos.LoginResponseDto;
 import co.com.crediya.api.dtos.RegisterUserDto;
 import co.com.crediya.model.user.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,9 +30,9 @@ public class RouterRest {
             @RouterOperation(
                     path = "/api/v1/users",
                     beanClass = Handler.class,
-                    beanMethod = "listenPostUseCase",
+                    beanMethod = "listenPostRegisterUser",
                     operation = @Operation(
-                            operationId = "listenPostUseCase",
+                            operationId = "listenPostRegisterUser",
                             summary = "Register a new user",
                             description = "Creates a new user in the system based on the provided RegisterUserDto",
                             requestBody = @RequestBody(
@@ -141,6 +143,30 @@ public class RouterRest {
                                             content = @Content(mediaType = "application/json",
                                                     schema = @Schema(implementation = String.class))
                                     )
+                            }
+                    )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/users/login",
+                    beanClass = Handler.class,
+                    beanMethod = "listenPostLogin",
+                    operation = @Operation(
+                            operationId = "listenPostLogin",
+                            summary = "Authenticate user and generate JWT token",
+                            description = "Authenticates the user using email and password, and returns a JWT token if credentials are valid",
+                            requestBody = @RequestBody(
+                                    required = true,
+                                    description = "User login credentials",
+                                    content = @Content(schema = @Schema(implementation = LoginRequestDto.class))
+                            ),
+                            responses = {
+                                    @ApiResponse(responseCode = "200", description = "Login successful, JWT token returned",
+                                            content = @Content(mediaType = "application/json",
+                                                    schema = @Schema(implementation = LoginResponseDto.class))),
+                                    @ApiResponse(responseCode = "401", description = "Invalid credentials",
+                                            content = @Content(mediaType = "application/json")),
+                                    @ApiResponse(responseCode = "500", description = "Internal server error",
+                                            content = @Content(mediaType = "application/json"))
                             }
                     )
             )

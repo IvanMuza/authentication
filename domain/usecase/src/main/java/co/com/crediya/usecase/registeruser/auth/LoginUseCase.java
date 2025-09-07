@@ -19,7 +19,7 @@ public class LoginUseCase {
         return userRepository.findByEmail(email)
                 .switchIfEmpty(Mono.error(new UserNotFoundException(
                         ErrorCodesEnums.USER_EMAIL_NOT_FOUND.getCode(),
-                        ErrorCodesEnums.USER_NOT_FOUND.getDefaultMessage())))
+                        ErrorCodesEnums.USER_EMAIL_NOT_FOUND.getDefaultMessage())))
                 .flatMap(user -> {
                     if (!user.getPassword().equals(password)) {
                         return Mono.error(new ValidationException(
