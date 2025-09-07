@@ -40,4 +40,10 @@ public class MyReactiveRepositoryAdapter
         return this.repository.findByDocumentNumber(documentNumber);
     }
 
+    @Override
+    public Mono<User> findByEmail(String email) {
+        return this.repository.findByEmail(email);
+
+    }
+
 }

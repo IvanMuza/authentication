@@ -14,18 +14,13 @@ import java.time.LocalDate;
 @Builder(toBuilder = true)
 public class User {
     private String documentNumber;
-
     private String firstName;
-
     private String lastName;
-
     private LocalDate birthDate;
-
     private String address;
-
     private String phone;
-
     private String email;
-
     private Double baseSalary;
+    private Long roleId;
+    private String password;
 }

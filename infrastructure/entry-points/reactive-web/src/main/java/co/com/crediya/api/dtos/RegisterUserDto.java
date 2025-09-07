@@ -14,4 +14,6 @@ public class RegisterUserDto {
     private String phone;
     private String email;
     private Double baseSalary;
+    private String roleName;
+    private String password;
 }

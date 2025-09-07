@@ -1,4 +1,4 @@
-package co.com.crediya.usecase.registeruser;
+package co.com.crediya.usecase.registeruser.user;
 
 import co.com.crediya.model.user.User;
 import co.com.crediya.model.user.gateways.UserRepository;
