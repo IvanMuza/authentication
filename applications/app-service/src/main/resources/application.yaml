@@ -18,3 +18,7 @@ spring:
       password: ${DB_PASSWORD}
 cors:
   allowed-origins: "http://localhost:8080"
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: 3600000

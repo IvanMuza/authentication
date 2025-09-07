@@ -16,7 +16,9 @@ public enum ErrorCodesEnums {
     EMAIL_REQUIRED("EMAIL_REQUIRED", "Email is required"),
     EMAIL_INVALID("EMAIL_INVALID", "Email is not valid"),
     EMAIL_ALREADY_EXISTS("EMAIL_ALREADY_EXISTS", "Email already registered"),
-    BASE_SALARY_INVALID("BASE_SALARY_INVALID", "Base salary is not valid");
+    BASE_SALARY_INVALID("BASE_SALARY_INVALID", "Base salary is not valid"),
+    CREDENTIALS_INVALID("CREDENTIALS_INVALID", "Invalid credentials"),
+    ROLE_INVALID("ROLE_INVALID", "Role is not valid"),;
 
     private final String code;
     private final String defaultMessage;

@@ -149,6 +149,7 @@ public class RouterRest {
         return route(POST("/api/v1/users"), handler::listenPostRegisterUser)
                 .and(route(GET("/api/v1/users/tasks"), handler::listenGetAllUsersTask)
                         .and(route(GET("/api/v1/users/{documentNumber}"), handler::listenGetExistsByDocument))
-                        .and(route(GET("/api/v1/users/exists/{email}"), handler::listenGetExistsByEmail)));
+                        .and(route(GET("/api/v1/users/exists/{email}"), handler::listenGetExistsByEmail))
+                        .and(route(POST("/api/v1/users/login"), handler::listenPostLogin)));
     }
 }

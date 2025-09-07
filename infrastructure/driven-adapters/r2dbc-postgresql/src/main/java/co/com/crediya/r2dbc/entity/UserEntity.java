@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @Table(name = "users")
 public class UserEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column("id_user")
     private Long id;
 
@@ -43,4 +43,10 @@ public class UserEntity {
 
     @Column("base_salary")
     private Double baseSalary;
+
+    @Column("role_id")
+    private Long roleId;
+
+    @Column("password")
+    private String password;
 }

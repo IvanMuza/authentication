@@ -5,8 +5,9 @@ import co.com.crediya.model.user.exceptions.DocumentAlreadyExistsException;
 import co.com.crediya.model.user.exceptions.EmailAlreadyExistsException;
 import co.com.crediya.model.user.exceptions.EmailNotValidException;
 import co.com.crediya.model.user.exceptions.ValidationException;
+import co.com.crediya.model.user.gateways.RoleRepository;
 import co.com.crediya.model.user.gateways.UserRepository;
-import co.com.crediya.usecase.registeruser.RegisterUserUseCase;
+import co.com.crediya.usecase.registeruser.user.RegisterUserUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import org.junit.jupiter.api.Test;
@@ -20,12 +21,14 @@ import static org.mockito.Mockito.*;
 class RegisterUserUseCaseTest {
 
     private UserRepository userRepository;
+    private RoleRepository roleRepository;
     private RegisterUserUseCase registerUserUseCase;
 
     @BeforeEach
     void setUp() {
         userRepository = Mockito.mock(UserRepository.class);
-        registerUserUseCase = new RegisterUserUseCase(userRepository);
+        roleRepository = Mockito.mock(RoleRepository.class);
+        registerUserUseCase = new RegisterUserUseCase(userRepository, roleRepository);
     }
 
     private User buildValidUser() {
@@ -38,6 +41,8 @@ class RegisterUserUseCaseTest {
                 .phone("+57 123456789")
                 .email("ivanmuza@test.com")
                 .baseSalary(6_000_000D)
+                .roleId(1L)
+                .password("12345")
                 .build();
     }
 
@@ -47,9 +52,10 @@ class RegisterUserUseCaseTest {
 
         when(userRepository.existsByDocumentNumber(user.getDocumentNumber())).thenReturn(Mono.just(false));
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(Mono.just(false));
+        when(roleRepository.findRoleIdByName("Costumer")).thenReturn(Mono.just(1L));
         when(userRepository.save(user)).thenReturn(Mono.just(user));
 
-        StepVerifier.create(registerUserUseCase.registerUser(user))
+        StepVerifier.create(registerUserUseCase.registerUser(user, "Costumer"))
                 .expectNext(user)
                 .verifyComplete();
 
@@ -58,11 +64,11 @@ class RegisterUserUseCaseTest {
 
     @Test
     void shouldFailWhenUserIsNull() {
-        StepVerifier.create(registerUserUseCase.registerUser(null))
+        StepVerifier.create(registerUserUseCase.registerUser(null, "invalid"))
                 .expectError(ValidationException.class)
                 .verify();
 
-        verifyNoInteractions(userRepository);
+        verifyNoInteractions(userRepository, roleRepository);
     }
 
     @Test
@@ -70,11 +76,11 @@ class RegisterUserUseCaseTest {
         User user = buildValidUser();
         user.setDocumentNumber("");
 
-        StepVerifier.create(registerUserUseCase.registerUser(user))
+        StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
                 .expectError(ValidationException.class)
                 .verify();
 
-        verifyNoInteractions(userRepository);
+        verifyNoInteractions(userRepository, roleRepository);
     }
 
     @Test
@@ -82,11 +88,11 @@ class RegisterUserUseCaseTest {
         User user = buildValidUser();
         user.setFirstName("");
 
-        StepVerifier.create(registerUserUseCase.registerUser(user))
+        StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
                 .expectError(ValidationException.class)
                 .verify();
 
-        verifyNoInteractions(userRepository);
+        verifyNoInteractions(userRepository, roleRepository);
     }
 
     @Test
@@ -94,7 +100,7 @@ class RegisterUserUseCaseTest {
         User user = buildValidUser();
         user.setLastName(null);
 
-        StepVerifier.create(registerUserUseCase.registerUser(user))
+        StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
                 .expectError(ValidationException.class)
                 .verify();
 
@@ -106,7 +112,7 @@ class RegisterUserUseCaseTest {
         User user = buildValidUser();
         user.setEmail("");
 
-        StepVerifier.create(registerUserUseCase.registerUser(user))
+        StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
                 .expectError(ValidationException.class)
                 .verify();
 
@@ -118,11 +124,11 @@ class RegisterUserUseCaseTest {
         User user = buildValidUser();
         user.setBaseSalary(null);
 
-        StepVerifier.create(registerUserUseCase.registerUser(user))
+        StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
                 .expectError(ValidationException.class)
                 .verify();
 
-        verifyNoInteractions(userRepository);
+        verifyNoInteractions(userRepository, roleRepository);
     }
 
     @Test
@@ -130,7 +136,7 @@ class RegisterUserUseCaseTest {
         User user = buildValidUser();
         user.setBaseSalary(20_000_000D);
 
-        StepVerifier.create(registerUserUseCase.registerUser(user))
+        StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
                 .expectError(ValidationException.class)
                 .verify();
 
@@ -142,11 +148,11 @@ class RegisterUserUseCaseTest {
         User user = buildValidUser();
         user.setEmail("invalid-email");
 
-        StepVerifier.create(registerUserUseCase.registerUser(user))
+        StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
                 .expectError(EmailNotValidException.class)
                 .verify();
 
-        verifyNoInteractions(userRepository);
+        verifyNoInteractions(userRepository, roleRepository);
     }
 
     @Test
@@ -155,8 +161,9 @@ class RegisterUserUseCaseTest {
 
         when(userRepository.existsByDocumentNumber(user.getDocumentNumber())).thenReturn(Mono.just(false));
         when(userRepository.existsByEmail(user.getEmail())).thenReturn(Mono.just(true));
+        when(roleRepository.findRoleIdByName(anyString())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(registerUserUseCase.registerUser(user))
+        StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
                 .expectError(EmailAlreadyExistsException.class)
                 .verify();
 
@@ -169,8 +176,9 @@ class RegisterUserUseCaseTest {
         User user = buildValidUser();
 
         when(userRepository.existsByDocumentNumber(user.getDocumentNumber())).thenReturn(Mono.just(true));
+        when(roleRepository.findRoleIdByName(anyString())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(registerUserUseCase.registerUser(user))
+        StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
                 .expectError(DocumentAlreadyExistsException.class)
                 .verify();
 

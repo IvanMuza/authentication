@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS users
     phone_number    VARCHAR(20),
     email           VARCHAR(150)   NOT NULL UNIQUE,
     base_salary     NUMERIC(15, 2) NOT NULL CHECK (base_salary >= 0 AND base_salary <= 15000000),
+    password        VARCHAR(255)   NOT NULL,
     role_id         BIGINT  NOT NULL,
 
     CONSTRAINT fk_user_role FOREIGN KEY (role_id) REFERENCES role(id)

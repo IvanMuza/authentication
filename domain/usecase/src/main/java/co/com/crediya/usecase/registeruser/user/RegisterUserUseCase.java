@@ -1,11 +1,9 @@
-package co.com.crediya.usecase.registeruser;
+package co.com.crediya.usecase.registeruser.user;
 
 import co.com.crediya.model.user.User;
 import co.com.crediya.model.user.enums.ErrorCodesEnums;
-import co.com.crediya.model.user.exceptions.DocumentAlreadyExistsException;
-import co.com.crediya.model.user.exceptions.EmailAlreadyExistsException;
-import co.com.crediya.model.user.exceptions.EmailNotValidException;
-import co.com.crediya.model.user.exceptions.ValidationException;
+import co.com.crediya.model.user.exceptions.*;
+import co.com.crediya.model.user.gateways.RoleRepository;
 import co.com.crediya.model.user.gateways.UserRepository;
 import co.com.crediya.usecase.registeruser.helper.EmailValidator;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +12,11 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class RegisterUserUseCase {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private static final Double MIN_VALUE_BASE_SALARY = 0.0;
     private static final Double MAX_VALUE_BASE_SALARY = 15000000.0;
 
-    public Mono<User> registerUser(User user) {
+    public Mono<User> registerUser(User user, String roleName) {
         if (user == null) {
             return Mono.error(new ValidationException(ErrorCodesEnums.USER_REQUIRED.getCode(),
                     ErrorCodesEnums.USER_REQUIRED.getDefaultMessage()));
@@ -49,22 +48,29 @@ public class RegisterUserUseCase {
                     ErrorCodesEnums.EMAIL_INVALID.getDefaultMessage()));
         }
 
-        return userRepository.existsByDocumentNumber(user.getDocumentNumber())
-                .flatMap(exists -> {
-                    if (exists) {
-                        return Mono.error(new DocumentAlreadyExistsException(
-                                ErrorCodesEnums.DOCUMENT_NUMBER_ALREADY_EXISTS.getCode(),
-                                ErrorCodesEnums.DOCUMENT_NUMBER_ALREADY_EXISTS.getDefaultMessage()
-                        ));
-                    }
-                    return userRepository.existsByEmail(user.getEmail())
-                            .flatMap(emailExists -> emailExists
-                                    ? Mono.error(new EmailAlreadyExistsException(
-                                    ErrorCodesEnums.EMAIL_ALREADY_EXISTS.getCode(),
-                                    ErrorCodesEnums.EMAIL_ALREADY_EXISTS.getDefaultMessage()))
-                                    : userRepository.save(user)
-                            );
+        return roleRepository.findRoleIdByName(roleName)
+                .switchIfEmpty(Mono.error(new RoleNotValidException(
+                        ErrorCodesEnums.ROLE_INVALID.getCode(),
+                        ErrorCodesEnums.ROLE_INVALID.getDefaultMessage())))
+                .flatMap(roleId -> {
+                    user.setRoleId(roleId);
+                    return userRepository.existsByDocumentNumber(user.getDocumentNumber())
+                            .flatMap(exists -> {
+                                if (exists) {
+                                    return Mono.error(new DocumentAlreadyExistsException(
+                                            ErrorCodesEnums.DOCUMENT_NUMBER_ALREADY_EXISTS.getCode(),
+                                            ErrorCodesEnums.DOCUMENT_NUMBER_ALREADY_EXISTS.getDefaultMessage()
+                                    ));
+                                }
+                                return userRepository.existsByEmail(user.getEmail())
+                                        .flatMap(emailExists -> emailExists
+                                                ? Mono.error(new EmailAlreadyExistsException(
+                                                ErrorCodesEnums.EMAIL_ALREADY_EXISTS.getCode(),
+                                                ErrorCodesEnums.EMAIL_ALREADY_EXISTS.getDefaultMessage()))
+                                                : userRepository.save(user)
+                                        );
+                            });
                 });
-    }
 
+    }
 }

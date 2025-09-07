@@ -1,12 +1,16 @@
 package co.com.crediya.api;
 
+import co.com.crediya.api.dtos.LoginRequestDto;
+import co.com.crediya.api.dtos.LoginResponseDto;
 import co.com.crediya.api.dtos.RegisterUserDto;
 import co.com.crediya.api.mappers.UserMapper;
+import co.com.crediya.model.user.User;
 import co.com.crediya.model.user.enums.ErrorCodesEnums;
 import co.com.crediya.model.user.exceptions.UserNotFoundException;
 import co.com.crediya.model.user.gateways.UserRepository;
-import co.com.crediya.usecase.registeruser.GetAllUsersUseCase;
-import co.com.crediya.usecase.registeruser.RegisterUserUseCase;
+import co.com.crediya.usecase.registeruser.auth.LoginUseCase;
+import co.com.crediya.usecase.registeruser.user.GetAllUsersUseCase;
+import co.com.crediya.usecase.registeruser.user.RegisterUserUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +20,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 @Component
 @RequiredArgsConstructor
 public class Handler {
@@ -24,11 +30,14 @@ public class Handler {
     private final TransactionalOperator transactionalOperator;
     private final UserRepository userRepository;
     private final GetAllUsersUseCase getAllUsersUseCase;
+    private final LoginUseCase loginUseCase;
 
     public Mono<ServerResponse> listenPostRegisterUser(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(RegisterUserDto.class)
-                .map(userMapper::toDomain)
-                .flatMap(registerUserUseCase::registerUser)
+                .flatMap(dto -> {
+                    User user = userMapper.toDomain(dto);
+                    return registerUserUseCase.registerUser(user, dto.getRoleName());
+                })
                 .map(userMapper::toResponse)
                 .flatMap(userResponse -> ServerResponse
                         .status(HttpStatus.CREATED.value())
@@ -71,6 +80,17 @@ public class Handler {
                                 .bodyValue(false);
                     }
                 })
+                .as(transactionalOperator::transactional);
+    }
+
+    public Mono<ServerResponse> listenPostLogin(ServerRequest request) {
+        return request.bodyToMono(LoginRequestDto.class)
+                .flatMap(dto -> loginUseCase.login(dto.getEmail(), dto.getPassword()))
+                .flatMap(token -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(new LoginResponseDto(token)))
+                .onErrorResume(e -> ServerResponse.status(HttpStatus.UNAUTHORIZED)
+                        .bodyValue(Map.of("error", e.getMessage())))
                 .as(transactionalOperator::transactional);
     }
 
