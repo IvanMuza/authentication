@@ -94,4 +94,18 @@ public class Handler {
                 .as(transactionalOperator::transactional);
     }
 
+    public Mono<ServerResponse> listenGetFindByEmail(ServerRequest serverRequest) {
+        String email = serverRequest.pathVariable("email");
+        return userRepository.findByEmail(email)
+                .map(userMapper::toUserLoanResponse)
+                .flatMap(user -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(user))
+                .switchIfEmpty(Mono.error(new UserNotFoundException(
+                        ErrorCodesEnums.USER_EMAIL_NOT_FOUND.getCode(),
+                        ErrorCodesEnums.USER_EMAIL_NOT_FOUND.getDefaultMessage()
+                )))
+                .as(transactionalOperator::transactional);
+    }
+
 }

@@ -48,6 +48,8 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.POST,"/api/v1/users").hasAnyRole("Admin", "Consultant")
                         .pathMatchers(HttpMethod.POST,"/api/v1/users/login").permitAll()
+                        .pathMatchers(HttpMethod.GET,"/api/v1/users/{documentNumber}").permitAll()
+                        .pathMatchers(HttpMethod.GET,"/api/v1/users/email/{email}").permitAll()
                         .pathMatchers("/swagger-ui.html", "/v3/api-docs/**", "/webjars/swagger-ui/**").permitAll()
                         .anyExchange().authenticated()
                 )

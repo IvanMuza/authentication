@@ -169,6 +169,44 @@ public class RouterRest {
                                             content = @Content(mediaType = "application/json"))
                             }
                     )
+            ),
+            @RouterOperation(
+                    path = "/api/v1/users/email/{email}",
+                    beanClass = Handler.class,
+                    beanMethod = "listenGetFindByEmail",
+                    operation = @Operation(
+                            operationId = "listenGetFindByEmail",
+                            summary = "Find user by email",
+                            description = "Returns the user object if found, otherwise a 400 not found error",
+                            parameters = {
+                                    @Parameter(
+                                            name = "email",
+                                            in = ParameterIn.PATH,
+                                            required = true,
+                                            description = "Email of the user to retrieve"
+                                    )
+                            },
+                            responses = {
+                                    @ApiResponse(
+                                            responseCode = "200",
+                                            description = "User found successfully",
+                                            content = @Content(mediaType = "application/json",
+                                                    schema = @Schema(implementation = User.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "400",
+                                            description = "User not found with provided email",
+                                            content = @Content(mediaType = "application/json",
+                                                    schema = @Schema(implementation = String.class))
+                                    ),
+                                    @ApiResponse(
+                                            responseCode = "500",
+                                            description = "Internal server error",
+                                            content = @Content(mediaType = "application/json",
+                                                    schema = @Schema(implementation = String.class))
+                                    )
+                            }
+                    )
             )
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
@@ -176,6 +214,7 @@ public class RouterRest {
                 .and(route(GET("/api/v1/users/tasks"), handler::listenGetAllUsersTask)
                         .and(route(GET("/api/v1/users/{documentNumber}"), handler::listenGetExistsByDocument))
                         .and(route(GET("/api/v1/users/exists/{email}"), handler::listenGetExistsByEmail))
-                        .and(route(POST("/api/v1/users/login"), handler::listenPostLogin)));
+                        .and(route(POST("/api/v1/users/login"), handler::listenPostLogin))
+                        .and(route(GET("/api/v1/users/email/{email}"), handler::listenGetFindByEmail)));
     }
 }
