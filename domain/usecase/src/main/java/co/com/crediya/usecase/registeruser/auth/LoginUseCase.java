@@ -1,6 +1,7 @@
 package co.com.crediya.usecase.registeruser.auth;
 
 import co.com.crediya.model.user.enums.ErrorCodesEnums;
+import co.com.crediya.model.user.exceptions.RoleNotValidException;
 import co.com.crediya.model.user.exceptions.UserNotFoundException;
 import co.com.crediya.model.user.exceptions.ValidationException;
 import co.com.crediya.model.user.gateways.JwtProviderPort;
@@ -28,7 +29,11 @@ public class LoginUseCase {
                         ));
                     }
                     return roleRepository.findRoleNameById(user.getRoleId())
-                            .map(roleName -> jwtProvider.generateToken(user.getEmail(), roleName));
+                            .map(roleName -> jwtProvider.generateToken(user.getEmail(), roleName))
+                            .switchIfEmpty(Mono.error(new RoleNotValidException(
+                                    ErrorCodesEnums.ROLE_INVALID.getCode(),
+                                    ErrorCodesEnums.ROLE_INVALID.getDefaultMessage()
+                            )));
                 });
     }
 }

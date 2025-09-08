@@ -18,7 +18,8 @@ public enum ErrorCodesEnums {
     EMAIL_ALREADY_EXISTS("EMAIL_ALREADY_EXISTS", "Email already registered"),
     BASE_SALARY_INVALID("BASE_SALARY_INVALID", "Base salary is not valid"),
     CREDENTIALS_INVALID("CREDENTIALS_INVALID", "Invalid credentials"),
-    ROLE_INVALID("ROLE_INVALID", "Role is not valid"),;
+    ROLE_INVALID("ROLE_INVALID", "Role is not valid"),
+    USER_NOT_AUTHORIZED_TO_CREATE("USER_NOT_AUTHORIZED_TO_CREATE", "User not authorized to create users");
 
     private final String code;
     private final String defaultMessage;

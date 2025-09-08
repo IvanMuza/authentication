@@ -1,6 +1,7 @@
 package co.com.crediya.api.exceptions;
 
 import co.com.crediya.model.user.exceptions.BaseBusinessException;
+import co.com.crediya.model.user.exceptions.UserNotAuthorizedException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,10 @@ public class GlobalErrorExceptionHandler implements WebExceptionHandler {
     public Mono<Void> handle(ServerWebExchange serverWebExchange, Throwable ex) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String code = String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        if (ex instanceof BaseBusinessException) {
+        if (ex instanceof UserNotAuthorizedException) {
+            status = HttpStatus.FORBIDDEN;
+            code = String.valueOf(HttpStatus.FORBIDDEN.value());
+        } else if (ex instanceof BaseBusinessException) {
             status = HttpStatus.BAD_REQUEST;
             code = String.valueOf(HttpStatus.BAD_REQUEST.value());
         }
