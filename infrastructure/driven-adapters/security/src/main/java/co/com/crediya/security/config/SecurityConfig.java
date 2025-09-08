@@ -1,5 +1,7 @@
 package co.com.crediya.security.config;
 
+import co.com.crediya.model.user.enums.ErrorCodesEnums;
+import co.com.crediya.model.user.exceptions.UserNotAuthorizedException;
 import co.com.crediya.security.ReactiveJwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +14,7 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -46,12 +49,20 @@ public class SecurityConfig {
                 )
 
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers(HttpMethod.POST,"/api/v1/users").hasAnyRole("Admin", "Consultant")
-                        .pathMatchers(HttpMethod.POST,"/api/v1/users/login").permitAll()
-                        .pathMatchers(HttpMethod.GET,"/api/v1/users/{documentNumber}").permitAll()
-                        .pathMatchers(HttpMethod.GET,"/api/v1/users/email/{email}").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/v1/users").hasAnyRole("Admin", "Consultant")
+                        .pathMatchers(HttpMethod.POST, "/api/v1/users/login").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/v1/users/{documentNumber}").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/v1/users/email/{email}").permitAll()
                         .pathMatchers("/swagger-ui.html", "/v3/api-docs/**", "/webjars/swagger-ui/**").permitAll()
                         .anyExchange().authenticated()
+                )
+
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedHandler((exchange, denied) ->
+                                Mono.error(new UserNotAuthorizedException(
+                                        ErrorCodesEnums.USER_NOT_AUTHORIZED_TO_CREATE.getCode(),
+                                        ErrorCodesEnums.USER_NOT_AUTHORIZED_TO_CREATE.getDefaultMessage()
+                                )))
                 )
                 .build();
     }
