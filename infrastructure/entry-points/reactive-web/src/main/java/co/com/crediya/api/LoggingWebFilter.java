@@ -2,6 +2,8 @@ package co.com.crediya.api;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import java.util.UUID;
 
 @Slf4j
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class LoggingWebFilter implements WebFilter {
     private static final String CORRELATION_ID = "X-Correlation-Id";
 
@@ -22,7 +25,6 @@ public class LoggingWebFilter implements WebFilter {
     @NonNull
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, WebFilterChain chain) {
         long startTime = System.currentTimeMillis();
-
         String correlationId = getOrCreateCorrelationId(exchange);
 
         ServerHttpRequest request = exchange.getRequest();
@@ -32,6 +34,10 @@ public class LoggingWebFilter implements WebFilter {
         log.info("[{}] Incoming request: {} {}", correlationId, method, path);
 
         return chain.filter(exchange)
+                .doOnError(error -> {
+                    log.error("[{}] Error processing request {} {} -> {}",
+                            correlationId, method, path, error.getMessage());
+                })
                 .doFinally(signalType -> {
                     long duration = System.currentTimeMillis() - startTime;
                     HttpStatusCode statusCode = exchange.getResponse().getStatusCode();

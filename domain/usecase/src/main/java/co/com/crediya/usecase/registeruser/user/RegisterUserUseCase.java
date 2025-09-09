@@ -1,7 +1,6 @@
 package co.com.crediya.usecase.registeruser.user;
 
 import co.com.crediya.model.user.User;
-import co.com.crediya.model.user.enums.ErrorCodesEnums;
 import co.com.crediya.model.user.exceptions.*;
 import co.com.crediya.model.user.gateways.RoleRepository;
 import co.com.crediya.model.user.gateways.UserRepository;
@@ -18,55 +17,41 @@ public class RegisterUserUseCase {
 
     public Mono<User> registerUser(User user, String roleName) {
         if (user == null) {
-            return Mono.error(new ValidationException(ErrorCodesEnums.USER_REQUIRED.getCode(),
-                    ErrorCodesEnums.USER_REQUIRED.getDefaultMessage()));
+            return Mono.error(new UserNotValidException());
         }
 
         if (user.getDocumentNumber() == null || user.getDocumentNumber().isBlank()) {
-            return Mono.error(new ValidationException(ErrorCodesEnums.DOCUMENT_NUMBER_REQUIRED.getCode(),
-                    ErrorCodesEnums.DOCUMENT_NUMBER_REQUIRED.getDefaultMessage()));
+            return Mono.error(new DocumentNotValidException());
         }
 
         if (user.getFirstName() == null || user.getFirstName().isBlank()) {
-            return Mono.error(new ValidationException(ErrorCodesEnums.FIRST_NAME_REQUIRED.getCode(),
-                    ErrorCodesEnums.FIRST_NAME_REQUIRED.getDefaultMessage()));
+            return Mono.error(new UserFirstNameNotValidException());
         }
         if (user.getLastName() == null || user.getLastName().isBlank()) {
-            return Mono.error(new ValidationException(ErrorCodesEnums.LAST_NAME_REQUIRED.getCode(),
-                    ErrorCodesEnums.LAST_NAME_REQUIRED.getDefaultMessage()));
+            return Mono.error(new UserLastNameNotValidException());
         }
         if (user.getEmail() == null || user.getEmail().isBlank()) {
-            return Mono.error(new ValidationException(ErrorCodesEnums.EMAIL_REQUIRED.getCode(),
-                    ErrorCodesEnums.EMAIL_REQUIRED.getDefaultMessage()));
+            return Mono.error(new EmailNotValidException());
         }
         if (user.getBaseSalary() == null || user.getBaseSalary() < MIN_VALUE_BASE_SALARY || user.getBaseSalary() > MAX_VALUE_BASE_SALARY) {
-            return Mono.error(new ValidationException(ErrorCodesEnums.BASE_SALARY_INVALID.getCode(),
-                    ErrorCodesEnums.BASE_SALARY_INVALID.getDefaultMessage()));
+            return Mono.error(new BaseSalaryNotValidException());
         }
         if (!EmailValidator.isValid(user.getEmail())) {
-            return Mono.error(new EmailNotValidException(ErrorCodesEnums.EMAIL_INVALID.getCode(),
-                    ErrorCodesEnums.EMAIL_INVALID.getDefaultMessage()));
+            return Mono.error(new EmailNotValidException());
         }
 
         return roleRepository.findRoleIdByName(roleName)
-                .switchIfEmpty(Mono.error(new RoleNotValidException(
-                        ErrorCodesEnums.ROLE_INVALID.getCode(),
-                        ErrorCodesEnums.ROLE_INVALID.getDefaultMessage())))
+                .switchIfEmpty(Mono.error(new RoleNotValidException()))
                 .flatMap(roleId -> {
                     user.setRoleId(roleId);
                     return userRepository.existsByDocumentNumber(user.getDocumentNumber())
                             .flatMap(exists -> {
                                 if (exists) {
-                                    return Mono.error(new DocumentAlreadyExistsException(
-                                            ErrorCodesEnums.DOCUMENT_NUMBER_ALREADY_EXISTS.getCode(),
-                                            ErrorCodesEnums.DOCUMENT_NUMBER_ALREADY_EXISTS.getDefaultMessage()
-                                    ));
+                                    return Mono.error(new DocumentAlreadyExistsException());
                                 }
                                 return userRepository.existsByEmail(user.getEmail())
                                         .flatMap(emailExists -> emailExists
-                                                ? Mono.error(new EmailAlreadyExistsException(
-                                                ErrorCodesEnums.EMAIL_ALREADY_EXISTS.getCode(),
-                                                ErrorCodesEnums.EMAIL_ALREADY_EXISTS.getDefaultMessage()))
+                                                ? Mono.error(new EmailAlreadyExistsException())
                                                 : userRepository.save(user)
                                         );
                             });

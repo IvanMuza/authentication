@@ -1,7 +1,9 @@
 package co.com.crediya.model.user.exceptions;
 
+import co.com.crediya.model.user.enums.ErrorCodesEnums;
+
 public class EmailNotValidException extends BaseBusinessException {
-    public EmailNotValidException(String code, String message) {
-        super(code, message);
+    public EmailNotValidException() {
+        super(ErrorCodesEnums.EMAIL_INVALID_400);
     }
 }
