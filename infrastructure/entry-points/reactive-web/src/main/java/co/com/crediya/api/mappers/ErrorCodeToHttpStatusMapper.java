@@ -22,6 +22,7 @@ public class ErrorCodeToHttpStatusMapper {
                  DOCUMENT_NUMBER_ALREADY_EXISTS_400,
                  EMAIL_ALREADY_EXISTS_400,
                  USER_REQUIRED_400 -> HttpStatus.BAD_REQUEST;
+            case USER_NOT_AUTHENTICATED_403 ->  HttpStatus.FORBIDDEN;
         };
     }
 }

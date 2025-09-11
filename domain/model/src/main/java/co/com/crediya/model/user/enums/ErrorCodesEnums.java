@@ -19,7 +19,8 @@ public enum ErrorCodesEnums {
     CREDENTIALS_INVALID_400("CREDENTIALS_INVALID_400", "Invalid credentials"),
     ROLE_INVALID_400("ROLE_INVALID_400", "Role is not valid"),
     USER_NOT_AUTHORIZED_TO_CREATE_401("USER_NOT_AUTHORIZED_TO_CREATE_401", "User not authorized to create users"),
-    USER_LOGIN_NOT_FOUND_404("USER_LOGIN_NOT_FOUND_404", "User not found with provided login");
+    USER_LOGIN_NOT_FOUND_404("USER_LOGIN_NOT_FOUND_404", "User not found with provided login"),
+    USER_NOT_AUTHENTICATED_403("USER_NOT_AUTHENTICATED_403", "User must be authenticated");
 
     private final String code;
     private final String defaultMessage;
