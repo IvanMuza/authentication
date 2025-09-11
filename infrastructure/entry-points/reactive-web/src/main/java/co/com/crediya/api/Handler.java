@@ -5,8 +5,9 @@ import co.com.crediya.api.dtos.LoginResponseDto;
 import co.com.crediya.api.dtos.RegisterUserDto;
 import co.com.crediya.api.mappers.UserMapper;
 import co.com.crediya.model.user.User;
-import co.com.crediya.model.user.enums.ErrorCodesEnums;
-import co.com.crediya.model.user.exceptions.UserNotFoundException;
+import co.com.crediya.model.user.exceptions.EmailNotValidException;
+import co.com.crediya.model.user.exceptions.UserDocumentNotFoundException;
+import co.com.crediya.model.user.exceptions.UserLoginNotFound;
 import co.com.crediya.model.user.gateways.UserRepository;
 import co.com.crediya.usecase.registeruser.auth.LoginUseCase;
 import co.com.crediya.usecase.registeruser.user.GetAllUsersUseCase;
@@ -19,8 +20,6 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
-
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -59,10 +58,7 @@ public class Handler {
                 .flatMap(user -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(user))
-                .switchIfEmpty(Mono.error(new UserNotFoundException(
-                        ErrorCodesEnums.USER_NOT_FOUND.getCode(),
-                        ErrorCodesEnums.USER_NOT_FOUND.getDefaultMessage()
-                )))
+                .switchIfEmpty(Mono.error(new UserDocumentNotFoundException()))
                 .as(transactionalOperator::transactional);
     }
 
@@ -89,8 +85,7 @@ public class Handler {
                 .flatMap(token -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(new LoginResponseDto(token)))
-                .onErrorResume(e -> ServerResponse.status(HttpStatus.UNAUTHORIZED)
-                        .bodyValue(Map.of("error", e.getMessage())))
+                .switchIfEmpty(Mono.error(new UserLoginNotFound()))
                 .as(transactionalOperator::transactional);
     }
 
@@ -101,10 +96,7 @@ public class Handler {
                 .flatMap(user -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(user))
-                .switchIfEmpty(Mono.error(new UserNotFoundException(
-                        ErrorCodesEnums.USER_EMAIL_NOT_FOUND.getCode(),
-                        ErrorCodesEnums.USER_EMAIL_NOT_FOUND.getDefaultMessage()
-                )))
+                .switchIfEmpty(Mono.error(new EmailNotValidException()))
                 .as(transactionalOperator::transactional);
     }
 

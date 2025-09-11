@@ -1,6 +1,6 @@
 package co.com.crediya.security.config;
 
-import co.com.crediya.model.user.enums.ErrorCodesEnums;
+import co.com.crediya.model.user.exceptions.UserNotAuthenticatedException;
 import co.com.crediya.model.user.exceptions.UserNotAuthorizedException;
 import co.com.crediya.security.ReactiveJwtAuthenticationConverter;
 import lombok.RequiredArgsConstructor;
@@ -59,10 +59,10 @@ public class SecurityConfig {
 
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .accessDeniedHandler((exchange, denied) ->
-                                Mono.error(new UserNotAuthorizedException(
-                                        ErrorCodesEnums.USER_NOT_AUTHORIZED_TO_CREATE.getCode(),
-                                        ErrorCodesEnums.USER_NOT_AUTHORIZED_TO_CREATE.getDefaultMessage()
-                                )))
+                                Mono.error(new UserNotAuthorizedException()))
+                        .authenticationEntryPoint((exchange, e) ->
+                                Mono.error(new UserNotAuthenticatedException())
+                        )
                 )
                 .build();
     }

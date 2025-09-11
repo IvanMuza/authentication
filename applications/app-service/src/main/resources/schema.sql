@@ -1,3 +1,10 @@
+CREATE TABLE IF NOT EXISTS role
+(
+    id          BIGSERIAL PRIMARY KEY,
+    name        VARCHAR(100) NOT NULL,
+    description VARCHAR(200)
+);
+
 CREATE TABLE IF NOT EXISTS users
 (
     id_user         BIGSERIAL PRIMARY KEY,
@@ -13,11 +20,4 @@ CREATE TABLE IF NOT EXISTS users
     role_id         BIGINT  NOT NULL,
 
     CONSTRAINT fk_user_role FOREIGN KEY (role_id) REFERENCES role(id)
-);
-
-CREATE TABLE IF NOT EXISTS role
-(
-    id          BIGSERIAL PRIMARY KEY,
-    name        VARCHAR(100) NOT NULL,
-    description VARCHAR(200)
 );

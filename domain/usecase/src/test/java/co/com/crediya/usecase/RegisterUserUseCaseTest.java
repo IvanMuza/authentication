@@ -1,10 +1,7 @@
 package co.com.crediya.usecase;
 
 import co.com.crediya.model.user.User;
-import co.com.crediya.model.user.exceptions.DocumentAlreadyExistsException;
-import co.com.crediya.model.user.exceptions.EmailAlreadyExistsException;
-import co.com.crediya.model.user.exceptions.EmailNotValidException;
-import co.com.crediya.model.user.exceptions.ValidationException;
+import co.com.crediya.model.user.exceptions.*;
 import co.com.crediya.model.user.gateways.RoleRepository;
 import co.com.crediya.model.user.gateways.UserRepository;
 import co.com.crediya.usecase.registeruser.user.RegisterUserUseCase;
@@ -65,7 +62,7 @@ class RegisterUserUseCaseTest {
     @Test
     void shouldFailWhenUserIsNull() {
         StepVerifier.create(registerUserUseCase.registerUser(null, "invalid"))
-                .expectError(ValidationException.class)
+                .expectError(UserNotValidException.class)
                 .verify();
 
         verifyNoInteractions(userRepository, roleRepository);
@@ -77,7 +74,7 @@ class RegisterUserUseCaseTest {
         user.setDocumentNumber("");
 
         StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
-                .expectError(ValidationException.class)
+                .expectError(DocumentNotValidException.class)
                 .verify();
 
         verifyNoInteractions(userRepository, roleRepository);
@@ -89,7 +86,7 @@ class RegisterUserUseCaseTest {
         user.setFirstName("");
 
         StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
-                .expectError(ValidationException.class)
+                .expectError(UserFirstNameNotValidException.class)
                 .verify();
 
         verifyNoInteractions(userRepository, roleRepository);
@@ -101,7 +98,7 @@ class RegisterUserUseCaseTest {
         user.setLastName(null);
 
         StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
-                .expectError(ValidationException.class)
+                .expectError(UserLastNameNotValidException.class)
                 .verify();
 
         verifyNoInteractions(userRepository);
@@ -113,7 +110,7 @@ class RegisterUserUseCaseTest {
         user.setEmail("");
 
         StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
-                .expectError(ValidationException.class)
+                .expectError(EmailNotValidException.class)
                 .verify();
 
         verifyNoInteractions(userRepository);
@@ -125,7 +122,7 @@ class RegisterUserUseCaseTest {
         user.setBaseSalary(null);
 
         StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
-                .expectError(ValidationException.class)
+                .expectError(BaseSalaryNotValidException.class)
                 .verify();
 
         verifyNoInteractions(userRepository, roleRepository);
@@ -137,7 +134,7 @@ class RegisterUserUseCaseTest {
         user.setBaseSalary(20_000_000D);
 
         StepVerifier.create(registerUserUseCase.registerUser(user, "invalid"))
-                .expectError(ValidationException.class)
+                .expectError(BaseSalaryNotValidException.class)
                 .verify();
 
         verifyNoInteractions(userRepository);

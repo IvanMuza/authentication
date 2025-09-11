@@ -1,9 +1,9 @@
 package co.com.crediya.usecase;
 
 import co.com.crediya.model.user.User;
+import co.com.crediya.model.user.exceptions.CredentialsInvalidException;
 import co.com.crediya.model.user.exceptions.RoleNotValidException;
-import co.com.crediya.model.user.exceptions.UserNotFoundException;
-import co.com.crediya.model.user.exceptions.ValidationException;
+import co.com.crediya.model.user.exceptions.UserLoginNotFound;
 import co.com.crediya.model.user.gateways.JwtProviderPort;
 import co.com.crediya.model.user.gateways.RoleRepository;
 import co.com.crediya.model.user.gateways.UserRepository;
@@ -67,7 +67,7 @@ class LoginUseCaseTest {
         when(userRepository.findByEmail("notfound@test.com")).thenReturn(Mono.empty());
 
         StepVerifier.create(loginUseCase.login("notfound@test.com", "12345"))
-                .expectError(UserNotFoundException.class)
+                .expectError(UserLoginNotFound.class)
                 .verify();
 
         verify(userRepository).findByEmail("notfound@test.com");
@@ -81,7 +81,7 @@ class LoginUseCaseTest {
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
 
         StepVerifier.create(loginUseCase.login(user.getEmail(), "wrongPassword"))
-                .expectError(ValidationException.class)
+                .expectError(CredentialsInvalidException.class)
                 .verify();
 
         verify(userRepository).findByEmail(user.getEmail());
