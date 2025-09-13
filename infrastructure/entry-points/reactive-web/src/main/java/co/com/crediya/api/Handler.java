@@ -45,10 +45,10 @@ public class Handler {
                 .as(transactionalOperator::transactional);
     }
 
-    public Mono<ServerResponse> listenGetAllUsersTask(ServerRequest serverRequest) {
+    public Mono<ServerResponse> listenGetAllUsersTask(ServerRequest ignoredServerRequest) {
         return ServerResponse.ok()
                 .contentType(MediaType.TEXT_EVENT_STREAM)
-                .body(getAllUsersUseCase.getAllUsers(), GetAllUsersUseCase.class)
+                .body(getAllUsersUseCase.getAllUsers(), User.class)
                 .as(transactionalOperator::transactional);
     }
 
