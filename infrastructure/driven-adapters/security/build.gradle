@@ -8,4 +8,5 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.boot:spring-boot-starter-oauth2-resource-server"
+    implementation 'com.github.bancolombia:aws-secrets-manager-async:4.4.34'
 }

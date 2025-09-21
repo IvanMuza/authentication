@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT}
+  port: "${SERVER_PORT}"
 spring:
   application:
     name: "Authentication"
@@ -8,17 +8,39 @@ spring:
   sql:
     init:
       mode: never
+  profiles:
+    active: "Prod"
 adapters:
   r2dbc:
-    host: ${DB_HOST}
-    port: ${DB_PORT}
-    database: ${DB_NAME}
-    schema: ${DB_SCHEMA}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    host: "${DB_HOST}"
+    port: "${DB_PORT}"
+    database: "${DB_NAME}"
+    schema: "${DB_SCHEMA}"
+    username: "${DB_USER}"
+    password: "${DB_PASSWORD}"
 cors:
-  allowed-origins: "http://localhost:8080"
+  allowed-origins: "${CORS_ALLOWED_ORIGINS}"
 security:
   jwt:
-    secret: ${JWT_SECRET}
+    secret: "${JWT_SECRET}"
     expiration: 3600000
+aws:
+  region: "${AWS_REGION:us-east-1}"
+  secretName: "prod/CrediYa/Authentication/Secrets"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+logging:
+  level:
+    com.credi.ya: INFO
+    org.springframework: WARN
+    org.springframework.security: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

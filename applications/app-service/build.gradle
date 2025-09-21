@@ -1,6 +1,9 @@
 apply plugin: 'org.springframework.boot'
 
 dependencies {
+	implementation project(':aws-secrets-manager')
+	implementation 'com.github.bancolombia:aws-secrets-manager-async:4.4.34'
+	implementation project(':metrics')
 	implementation project(':security')
 	implementation project(':reactive-web')
 	implementation 'org.reactivecommons.utils:object-mapper:0.1.0'
@@ -11,6 +14,8 @@ dependencies {
     runtimeOnly('org.springframework.boot:spring-boot-devtools')
     testImplementation 'com.tngtech.archunit:archunit:1.4.1'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'software.amazon.awssdk:secretsmanager:2.20.0'
+    implementation 'software.amazon.awssdk:regions:2.20.0'
 }
 
 tasks.register('explodedJar', Copy) {
