@@ -39,7 +39,7 @@ jobs:
       - name: Deploy to ECS
         run: |
           CLUSTER_NAME=crediya-cluster
-          SERVICE_NAME=authentication-bk-service
+          SERVICE_NAME=crediya-authentication-task-service
 
           aws ecs update-service \
             --cluster $CLUSTER_NAME \
