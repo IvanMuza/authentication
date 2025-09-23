@@ -44,5 +44,3 @@ logging:
     org.springframework.security: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-springdoc:
-  show-actuator: false
