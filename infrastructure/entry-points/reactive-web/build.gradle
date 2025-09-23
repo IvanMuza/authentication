@@ -10,9 +10,3 @@ dependencies {
     implementation "org.springdoc:springdoc-openapi-starter-webflux-ui:${springDocVersion}"
     implementation "org.slf4j:slf4j-api:1.7.25"
 }
-configurations {
-    configureEach {
-        exclude group: "org.springdoc", module: "springdoc-openapi-starter-webmvc-api"
-        exclude group: "org.springdoc", module: "springdoc-openapi-starter-webmvc-ui"
-    }
-}
