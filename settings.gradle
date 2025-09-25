@@ -28,5 +28,3 @@ include ':security'
 project(':security').projectDir = file('./infrastructure/driven-adapters/security')
 include ':metrics'
 project(':metrics').projectDir = file('./infrastructure/helpers/metrics')
-include ':aws-secrets-manager'
-project(':aws-secrets-manager').projectDir = file('./infrastructure/driven-adapters/aws-secrets-manager')

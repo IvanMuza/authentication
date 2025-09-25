@@ -1,7 +1,6 @@
 apply plugin: 'org.springframework.boot'
 
 dependencies {
-	implementation project(':aws-secrets-manager')
 	implementation 'com.github.bancolombia:aws-secrets-manager-async:4.4.34'
 	implementation project(':metrics')
 	implementation project(':security')

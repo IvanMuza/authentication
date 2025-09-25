@@ -11,11 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SecretsConfig {
 
-  /*
-    Use GenericManagerAsync bean in your reactive pipe.
-    connector.getSecret("mySecretName", SecretModel.class).map(...);
-  */
-
   @Bean
   public GenericManagerAsync getSecretManager(@Value("${aws.region}") String region) {
     return new AWSSecretManagerConnectorAsync(getConfig(region));
